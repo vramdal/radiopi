@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Radiopi by vramdal</title>
+    <title>{{page.title}}</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
@@ -20,8 +20,6 @@
         <p class="header">Raspberry Pi DAB radio</p>
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/vramdal/radiopi/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/vramdal/radiopi/tarball/master">Download TAR</a></li>
           <li><a class="buttons github" href="https://github.com/vramdal/radiopi">View On GitHub</a></li>
         </ul>
 
@@ -30,17 +28,9 @@
 
       </header>
       <section>
-        <h3>
-<a id="deleliste" class="anchor" href="#deleliste" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deleliste</h3>
-
-<p>Dette er delene jeg har så langt:</p>
-
-<ul>
-<li>En <a href="https://www.raspberrypi.org/products/raspberry-pi-2-model-b/">Raspberry Pi 2 model B</a> - dette er den nyeste modellen</li>
-<li>Et <a href="http://www.monkeyboard.org/products/85-developmentboard/85-dab-dab-fm-digital-radio-development-board-pro">MonkeyBoard DAB-kort</a>. Alternativt kunne jeg valgt en litt mer vanlig USB DVB/DAB-stick, som også er billigere. Men MonkeyBoard'et hadde støtte for <a href="https://www.youtube.com/watch?v=NDBAJ16QnXU">DAB Slideshow</a>, som jeg kanskje har lyst til å gjøre noe morsomt med.</li>
-<li>Noen <a href="http://store.sure-electronics.com/led/led-display/dot-matrix-board/de-dp13111">Sure Electronics 8x32 LED-moduler</a>
-</li>
-</ul>
+          <h1>{{page.title}}</h1>
+          <p>{{page.date}}</p>
+        {{ page.content | markdownify }}
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>

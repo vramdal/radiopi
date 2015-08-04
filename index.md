@@ -4,4 +4,4 @@ title: Innhold
 ---
 
 - [Deleliste](/deleliste.html)
-- [Oppsett](/oppsett.html)
+- [Oppsett av DAB-kort](/dab-kort-oppsett.html)

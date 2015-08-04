@@ -20,10 +20,8 @@ Det vil si:
        cd ../app/
        make
        sudo ./testdab
-
 Dette lister ut en haug med stasjoner.
-
-4. Gjøre tty'en tilgjengelig for ikke-sudo-brukere:
+4. Gjør tty'en tilgjengelig for ikke-sudo-brukere:
 
 
       sudo nano /etc/udev/rules.d/75-microchip.rules
@@ -35,14 +33,12 @@ Dette lister ut en haug med stasjoner.
        KERNEL=="ttyACM0", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="000a", MODE="666", GROUP="pi"
 
 Trykk <kbd>Ctrl</kbd>-<kbd>O</kbd>, <kbd>Enter</kbd>, <kbd>Ctrl</kbd>-<kbd>X</kbd> for å lagre og avslutte.
-
-Restart:
+5. Restart:
 
 
       sudo shutdown -r now
 
-
-Start eksempel-app'en igjen (denne gangen trenger vi ikke `sudo`):
+6. Start eksempel-app'en igjen (denne gangen trenger vi ikke `sudo`):
 
 
      cd keystonecomm/app

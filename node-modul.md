@@ -2,6 +2,8 @@
 layout: post
 title: Kompilere Node-modul
 date: 2015-08-05 00:30:00 +0100
+categories: [step]
+step: 4
 ---
 
 1. Kopier filene vi trenger fra eksempel-appen til en ny katalog:

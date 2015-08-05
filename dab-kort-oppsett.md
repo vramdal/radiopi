@@ -2,6 +2,8 @@
 layout: post
 title: Oppsett og test av DAB-kort
 date: 2015-08-04 23:15:00 +0100
+categories: [step]
+step: 3
 ---
 
 Følger [oppskriften for å sette opp MonkeyBoard med Raspberry Pi][1].

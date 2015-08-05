@@ -29,7 +29,18 @@
       </header>
       <section>
           <h1>{{page.title}}</h1>
+          {% if page.categories contains 'index' %}
+          <ol>
+              {% assign sortedSteps = site.pages | sort: 'step' %}
+              {% for page in sortedSteps  %}
+              {% if page.categories contains 'step' %}
+              <li><a href="{{page.url}}">{{page.title}}</a></li>
+              {% endif %}
+          {% endfor %}
+          </ol>
+          {% else %}
           <p>{{page.date}}</p>
+          {% endif %}
         {{ page.content | markdownify }}
       </section>
       <footer>

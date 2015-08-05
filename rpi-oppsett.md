@@ -2,6 +2,8 @@
 layout: post
 title: Oppsett av Raspberry Pi
 date: 2015-08-05 01:45:00 +0100
+categories: [step]
+step: 2
 ---
 1 Oppdater pakkebeskrivelser
 

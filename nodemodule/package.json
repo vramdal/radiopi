@@ -1,0 +1,14 @@
+{
+  "name": "@vramdal/monkeyboard-dab",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Vidar Ramdal <vramdal@gmail.com>",
+  "description": "Control a MonkeyBoard DAB development board from Node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vramdal/radiopi.git/nodemodule"
+  },
+  "dependencies": {
+    "node-pre-gyp": "0.6.8"
+  }
+}

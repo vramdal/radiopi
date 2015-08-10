@@ -34,7 +34,7 @@
               {% assign sortedSteps = site.pages | sort: 'step' %}
               {% for page in sortedSteps  %}
               {% if page.categories contains 'step' %}
-              <li><a href="{{page.url}}">{{page.title}}</a></li>
+              <li><a href=".{{page.url}}">{{page.title}}</a></li>
               {% endif %}
           {% endfor %}
           </ol>

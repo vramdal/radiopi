@@ -20,14 +20,19 @@ sudo dpkg -i node_latest_armhf.deb
 sudo rm node_latest_armhf.deb
 ```
 
-3 Klon GitHub-repositoriet for RadioPi
+3 Installer CMake
+```bash
+sudo apt-get install cmake
+```
+
+4 Klon GitHub-repositoriet for RadioPi
 
 ```bash
 git clone https://github.com/vramdal/radiopi
 cd radiopi
 ```
 
-4 Kompiler koden
+5 Kompiler koden
 
 ```bash
 npm install

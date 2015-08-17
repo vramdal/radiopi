@@ -7,6 +7,7 @@ exports.PROGRAM_TYPE =[null, "News", "Current Affairs", "Information", "Sport", 
 var ext;
 if (process.env.HW == "fake") {
     ext = {
+        playIndex: 0,
         getVolume: function() {return 0},
         setVolume: function() {return true;},
         getPlayStatus: function() {return 0},
@@ -17,8 +18,17 @@ if (process.env.HW == "fake") {
                 {programType: 0, dabIndex: 2, channel: "NRK P3", applicationType: 0}
             ];
         },
-        getPlayIndex: function() {return 0;},
-        playStream: function(playMode, idx) {return true;}
+        getProgramText: function() {return "Programmet mitt"},
+        getPlayIndex: function() {return this.playIndex;},
+        playStream: function(playMode, idx) {this.playIndex = parseInt(idx); return true;},
+        prevStream: function() {if (this.playIndex > 0) {this.playIndex -= 1; return true; } else return false},
+        nextStream: function() {
+            if (this.playIndex < 2) {
+                this.playIndex += 1;
+                return true}
+            else
+                return false
+        }
 
     };
 } else {
@@ -94,6 +104,12 @@ exports.player = {
     get playStatus () {
         return PLAY_STATUS[ext.getPlayStatus()].toString();
     },
+    get programText() {
+        return ext.getProgramText();
+    },
+    get playIndex() {
+        return shadow.playIndex;
+    },
     get playMode() {
         return shadow.player.playMode;
     },
@@ -111,9 +127,38 @@ exports.player = {
         }
         if (ext.playStream(PLAY_MODE.indexOf(PLAY_MODE.DAB), idx)) {
             shadow.channels[idx].playing = true;
+            shadow.playIndex = idx;
             return true;
         } else {
             return false;
+        }
+    },
+    nextStream: function() {
+        if (ext.nextStream()) {
+            for (var i = 0; i < shadow.channels.length; i++) {
+                delete shadow.channels[i].playing;
+            }
+            shadow.playIndex = ext.getPlayIndex();
+            shadow.channels[shadow.playIndex].playing = true;
+            return true;
+        } else {
+            console.warn("nextStream failed. playIndex:", shadow.playIndex);
+            return false;
+
+        }
+    },
+    prevStream: function() {
+        if (ext.prevStream()) {
+            for (var i = 0; i < shadow.channels.length; i++) {
+                delete shadow.channels[i].playing;
+            }
+            shadow.playIndex = ext.getPlayIndex();
+            shadow.channels[shadow.playIndex].playing = true;
+            return true;
+        } else {
+            console.warn("prevStream failed. playIndex:", shadow.playIndex);
+            return false;
+
         }
     }
 };

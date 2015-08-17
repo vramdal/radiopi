@@ -71,6 +71,17 @@ void DoScan(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
+void GetProgramText(const FunctionCallbackInfo<Value>& args) {
+    Isolate* isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
+    wchar_t buff[300];
+    char cbuff[600];
+    GetProgramText(buff);
+    wcstombs( cbuff, buff, wcslen(buff) );
+    Local<String> str = String::NewFromUtf8(isolate, (const char *) cbuff, v8::String::kNormalString, wcslen(buff));
+    args.GetReturnValue().Set(str);
+}
+
 void GetPrograms(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -129,6 +140,24 @@ void PlayStream(const FunctionCallbackInfo<Value>& args) {
    args.GetReturnValue().Set((bool) result);
 }
 
+void PrevStream(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   bool result = PrevStream();
+   MotReset(MOT_HEADER_MODE);
+   MotReset(MOT_DIRECTORY_MODE);
+   args.GetReturnValue().Set((bool) result);
+}
+
+void NextStream(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   bool result = NextStream();
+   MotReset(MOT_HEADER_MODE);
+   MotReset(MOT_DIRECTORY_MODE);
+   args.GetReturnValue().Set((bool) result);
+}
+
 /** 0-16 */
 void SetVolume(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = Isolate::GetCurrent();
@@ -142,6 +171,18 @@ void GetVolume(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = Isolate::GetCurrent();
    HandleScope scope(isolate);
    args.GetReturnValue().Set((int) GetVolume());
+}
+
+void VolumeMinus(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((int) VolumeMinus());
+}
+
+void VolumePlus(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((int) VolumePlus());
 }
 
 void asyncTest(const FunctionCallbackInfo<Value>& args) {
@@ -172,6 +213,11 @@ void Initialize(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "playStream", PlayStream);
   NODE_SET_METHOD(exports, "getVolume", GetVolume);
   NODE_SET_METHOD(exports, "setVolume", SetVolume);
+  NODE_SET_METHOD(exports, "getProgramText", GetProgramText);
+  NODE_SET_METHOD(exports, "volumeMinus", VolumeMinus);
+  NODE_SET_METHOD(exports, "volumePlus", VolumePlus);
+  NODE_SET_METHOD(exports, "prevStream", PrevStream);
+  NODE_SET_METHOD(exports, "nextStream", NextStream);
 }
 
 

@@ -8,11 +8,15 @@ html
     h1= title
     if player.currentlyPlaying
       h2 Now playing: #{player.currentlyPlaying.channel}
-    h3 Play status: #{player.playStatus}
+      h3 #{player.programText}
+    h3 Play status: #{player.playStatus} Play index: #{player.playIndex}
     form(action="/volume/" method="post" )
         label Volume:
           input(type="range" min="0" max="16" name="volume" value="#{player.volume}")
         button(type="submit") Sett
+    form(action="/channels/" method="get" )
+        button(type="submit" name="channel" value="previous") Previous
+        button(type="submit" name="channel" value="next") Next
     ul(style="columns: 3")
       each channel, c in channels
         li

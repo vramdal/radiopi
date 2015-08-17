@@ -17,18 +17,28 @@ function backWithMsg(req, res, msg) {
 }
 
 exports.channels = function(req, res) {
-    var re = /^[^?]*?(\d+)$/;
+    var re = /^[^?]*?(\d+|next|previous)$/;
     var match = re.exec(req.url);
     var message = req.query.msg;
-    if (match == null) {
+    if (match == null && !req.query.channel) {
         // List channels
         res.render('default', { title: 'PiRadio', channels: dab.channels, player: dab.player, msg: message});
-    } else if (match != null) {
+    } else {
         // Play channel
-        var playIndex = match[1];
-        dab.player.playDAB(playIndex);
-        dab.player.volume = 8;
-        backWithMsg(req, res, "Now playing " + dab.player.currentlyPlaying.channel);
+        var playIndex = req.query.channel || match[1];
+        var result;
+        if (playIndex == "next") {
+            result = dab.player.nextStream();
+        } else if (playIndex == "previous") {
+            result = dab.player.prevStream();
+        } else {
+            result = dab.player.playDAB(playIndex);
+        }
+        if (result) {
+            backWithMsg(req, res, "Now playing " + dab.player.currentlyPlaying.channel);
+        } else {
+            backWithMsg(req, res, "Could not switch stream");
+        }
         //res.render('player', {program: dab.player.currentlyPlaying});
     }
 };

@@ -112,6 +112,38 @@ void GetPlayStatus(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set((int) GetPlayStatus());
 }
 
+void GetPlayIndex(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  args.GetReturnValue().Set((int) GetPlayIndex());
+}
+
+void PlayStream(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   uint8 mode = args[0]->IntegerValue();
+   long channel = args[1]->Uint32Value();
+   bool result = PlayStream(mode, channel);
+   MotReset(MOT_HEADER_MODE);
+   MotReset(MOT_DIRECTORY_MODE);
+   args.GetReturnValue().Set((bool) result);
+}
+
+/** 0-16 */
+void SetVolume(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   uint8 volume = args[0]->IntegerValue();
+   bool result = SetVolume(volume);
+   args.GetReturnValue().Set((bool) result);
+}
+
+void GetVolume(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((int) GetVolume());
+}
+
 void asyncTest(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -132,10 +164,14 @@ void Initialize(Handle<Object> exports) {
     fprintf(stderr, "Error on opening radio port /dev/ttyACM0\n");
   }
   NODE_SET_METHOD(exports, "getPrograms", GetPrograms);
+  NODE_SET_METHOD(exports, "getPlayIndex", GetPlayIndex);
   NODE_SET_METHOD(exports, "shutDown", ShutDown);
   NODE_SET_METHOD(exports, "getPlayStatus", GetPlayStatus);
   NODE_SET_METHOD(exports, "scan", DoScan);
   NODE_SET_METHOD(exports, "asyncTest", asyncTest);
+  NODE_SET_METHOD(exports, "playStream", PlayStream);
+  NODE_SET_METHOD(exports, "getVolume", GetVolume);
+  NODE_SET_METHOD(exports, "setVolume", SetVolume);
 }
 
 

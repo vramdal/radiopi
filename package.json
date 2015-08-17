@@ -1,0 +1,13 @@
+{
+  "name": "RadioPi",
+  "version": "0.0.0",
+  "description": "Raspberry Pi based DAB radio",
+  "main": "test-radio.js",
+  "private": true,
+  "dependencies": {
+    "async": "^1.4.2",
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "jade": "^1.11.0"
+  }
+}

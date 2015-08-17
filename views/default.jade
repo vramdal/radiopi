@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    title= title
+  body
+    if msg
+        div(class="toast")= msg
+    h1= title
+    if player.currentlyPlaying
+      h2 Now playing: #{player.currentlyPlaying.channel}
+    h3 Play status: #{player.playStatus}
+    form(action="/volume/" method="post" )
+        label Volume:
+          input(type="range" min="0" max="16" name="volume" value="#{player.volume}")
+        button(type="submit") Sett
+    ul(style="columns: 3")
+      each channel, c in channels
+        li
+          a(href="./#{channel.dabIndex}") #{channel.channel} (#{channel.programType}) (#{channel.applicationType})
+          if channel.playing
+            span ♫
+    button(type="button") Scan

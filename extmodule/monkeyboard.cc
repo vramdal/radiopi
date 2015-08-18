@@ -1,5 +1,7 @@
-#include <nan.h>
 #include <node.h>
+#include <cstring>
+#include <climits>
+#include <cstdlib>
 #include "monkeyboard.h"  // NOLINT(build/include)
 
 
@@ -185,6 +187,38 @@ void VolumePlus(const FunctionCallbackInfo<Value>& args) {
    args.GetReturnValue().Set((int) VolumePlus());
 }
 
+void VolumeToggleMute(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   VolumeMute();
+}
+
+void ClearDatabase(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   ClearDatabase();
+}
+
+void CloseRadioPort(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   CloseRadioPort();
+}
+
+/** 0-100 **/
+void GetDABSignalQuality(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((int) GetDABSignalQuality());
+}
+
+/** In kbps **/
+void GetDataRate(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((int) GetDataRate());
+}
+
 void asyncTest(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -218,6 +252,11 @@ void Initialize(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "volumePlus", VolumePlus);
   NODE_SET_METHOD(exports, "prevStream", PrevStream);
   NODE_SET_METHOD(exports, "nextStream", NextStream);
+  NODE_SET_METHOD(exports, "toggleMute", VolumeToggleMute);
+  NODE_SET_METHOD(exports, "clearDatabase", ClearDatabase);
+  NODE_SET_METHOD(exports, "closeRadioPort", CloseRadioPort);
+  NODE_SET_METHOD(exports, "getDABSignalQuality", GetDABSignalQuality);
+  NODE_SET_METHOD(exports, "getDataRate", GetDataRate);
 }
 
 

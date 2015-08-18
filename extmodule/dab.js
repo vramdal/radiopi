@@ -81,7 +81,9 @@ var shadow = {
         volume: ext.getVolume(),
         playMode: 0, //getEnumValue(ext.getPlayMode(), exports.PLAY_MODE),
         playStatus: getEnumValue(ext.getPlayStatus(), exports.PLAY_STATUS),
-        currentlyPlaying: null
+        currentlyPlaying: null,
+        dataRate: ext.getDataRate(),
+        signalQuality: ext.getDABSignalQuality()
     },
     channels: loadProgramsList(),
     playIndex: ext.getPlayIndex()
@@ -100,6 +102,16 @@ exports.player = {
         } else {
             return false;
         }
+    },
+    get dataRate () {
+        return player.dataRate;
+    },
+    get signalQuality () {
+        return player.signalQuality;
+    },
+    mute: function() {
+        ext.toggleMute();
+        shadow.player.volume = ext.getVolume();
     },
     get playStatus () {
         return PLAY_STATUS[ext.getPlayStatus()].toString();

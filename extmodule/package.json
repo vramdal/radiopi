@@ -2,11 +2,9 @@
   "name": "monkeyboard",
   "version": "0.0.0",
   "description": "Node.js Addons Example #9",
-  "main": "monkeyboard-test.js",
+  "main": "dab.js",
   "private": true,
   "gypfile": true,
   "dependencies": {
-    "nan": "*",
-    "ffi": "*"
   }
 }

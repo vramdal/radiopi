@@ -16,7 +16,7 @@
         ],
         ['OS=="mac"', {
           'include_dirs': [
-            "/Users/vramdal/Downloads/keystonecomm/KSDeviceLibrary"
+            "/Users/vramdal/lib/keystonecomm/KSDeviceLibrary"
             ]
           }
         ]

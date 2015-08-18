@@ -5,7 +5,6 @@
       "sources": [
         "monkeyboard.cc"
       ],
-      "include_dirs": ["<!(node -e \"require('nan')\")"],
       "conditions": [
         ['OS=="linux"', {
           'include_dirs': [

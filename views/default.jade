@@ -22,5 +22,6 @@ html
         li
           a(href="./#{channel.dabIndex}") #{channel.channel} (#{channel.programType}) (#{channel.applicationType})
           if channel.playing
-            span ♫
+            span ♫ #{player.dataRate} kbps #{player.signalStrength}%
+
     button(type="button") Scan

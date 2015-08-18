@@ -2,38 +2,14 @@
 #include <cstring>
 #include <climits>
 #include <cstdlib>
-#include "monkeyboard.h"  // NOLINT(build/include)
+#include "monkeyboard.h"
 
 
 using namespace v8;
 
-// Simple synchronous access to the `Estimate()` function
-
 void ShutDown(const FunctionCallbackInfo<Value>& args) {
   CloseRadioPort();
 }
-
-/*NAN_METHOD(DoScan) {
-  // expect a number as the first argument
-  //int points = info[0]->Uint32Value();
-
-    char radiostatus;
-    char freq;
-    int totalprogram;
-
-    wprintf(L"Searching for DAB stations.....\n");
-    if (DABAutoSearch(0, 40) == true) {
-        fflush(stdout);
-        radiostatus = 1;
-        while (radiostatus == 1) {
-            freq = GetFrequency();
-            totalprogram = GetTotalProgram();
-            wprintf(L"Scanning index %d, found %d programs\n", freq, totalprogram);
-            radiostatus = GetPlayStatus();
-        }
-    }
-  info.GetReturnValue().Set(0);
-}*/
 
 void DoScan(const FunctionCallbackInfo<Value>& args) {
     Isolate* isolate = Isolate::GetCurrent();
@@ -205,11 +181,18 @@ void CloseRadioPort(const FunctionCallbackInfo<Value>& args) {
    CloseRadioPort();
 }
 
-/** 0-100 **/
+/** DEPRECATED 0-100 **/
 void GetDABSignalQuality(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = Isolate::GetCurrent();
    HandleScope scope(isolate);
    args.GetReturnValue().Set((int) GetDABSignalQuality());
+}
+
+void GetSignalStrength(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   int *bitError = 0; // ignored
+   args.GetReturnValue().Set((int) GetSignalStrength(bitError));
 }
 
 /** In kbps **/
@@ -257,75 +240,8 @@ void Initialize(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "closeRadioPort", CloseRadioPort);
   NODE_SET_METHOD(exports, "getDABSignalQuality", GetDABSignalQuality);
   NODE_SET_METHOD(exports, "getDataRate", GetDataRate);
+  NODE_SET_METHOD(exports, "getSignalStrength", GetSignalStrength);
 }
 
 
 NODE_MODULE(module_name, Initialize);
-
-/*NAN_METHOD(GetPrograms) {
-	wchar_t buff[300];
-	char cbuff[600];
-	int totalprogram, i;
-
-	totalprogram = GetTotalProgram();
-    Local<v8::Array> ARRAY = Array::New(v8::Isolate::GetCurrent(), totalprogram);
-	for (i=0;i<totalprogram;i++) {
-
-	  if (GetProgramName(0, i, 1, buff)) {
-		wprintf(L"%ls\n", buff);
-        wcstombs( cbuff, buff, wcslen(buff) );
-        Local<T> str = New(v8::Isolate::GetCurrent(), cbuff, strlen(cbuff));
-        ARRAY->Set(i, str);
-	  }
-	}
-   //Nan::ReturnValue(ARRAY);
-   //info.GetReturnValue().Set(Nan::New<v8::Array>())
-   info.GetReturnValue().Set(ARRAY);
-}
-*/
-/*NAN_METHOD(NextStream) { NextStream(); }
-NAN_METHOD(PrevStream) { PrevStream(); }
-NAN_METHOD(GetPlayIndex) { info.GetReturnValue().Set((int) GetPlayIndex()); }
-NAN_METHOD(GetPlayMode) { info.GetReturnValue().Set((int) GetPlayMode()); }
-NAN_METHOD(GetPlayStatus) { info.GetReturnValue().Set((int) GetPlayStatus()); }
-NAN_METHOD(SetVolume) {
-  uint8 volume = info[0]->IntegerValue();
-  SetVolume(volume);
-}
-NAN_METHOD(PlayStream) {
-  uint8 mode = info[0]->IntegerValue();
-  long channel = info[1]->Uint32Value();
-  PlayStream(mode, channel);
-  MotReset(MOT_HEADER_MODE);
-  MotReset(MOT_DIRECTORY_MODE);
-}
-
-
-NAN_MODULE_INIT(InitAll) {
-  Set(target, New<String>("doScan").ToLocalChecked(),
-    New<FunctionTemplate>(DoScan)->GetFunction());
-  Set(target, New<String>("nextStream").ToLocalChecked(),
-    New<FunctionTemplate>(NextStream)->GetFunction());
-  Set(target, New<String>("prevStream").ToLocalChecked(),
-    New<FunctionTemplate>(PrevStream)->GetFunction());
-  Set(target, New<String>("init").ToLocalChecked(),
-    New<FunctionTemplate>(Init)->GetFunction());
-  Set(target, New<String>("shutdown").ToLocalChecked(),
-    New<FunctionTemplate>(Shutdown)->GetFunction());
-  Set(target, New<String>("getPlayIndex").ToLocalChecked(),
-    New<FunctionTemplate>(GetPlayIndex)->GetFunction());
-  Set(target, New<String>("getPlayStatus").ToLocalChecked(),
-    New<FunctionTemplate>(GetPlayStatus)->GetFunction());
-  Set(target, New<String>("playStream").ToLocalChecked(),
-    New<FunctionTemplate>(PlayStream)->GetFunction());
-  Set(target, New<String>("getPlayMode").ToLocalChecked(),
-    New<FunctionTemplate>(GetPlayMode)->GetFunction());
-  Set(target, New<String>("getPrograms").ToLocalChecked(),
-    New<FunctionTemplate>(GetPrograms)->GetFunction());
-  Set(target, New<String>("setVolume").ToLocalChecked(),
-    New<FunctionTemplate>(SetVolume)->GetFunction());
-}
-
-NODE_MODULE(addon, InitAll)
-
-*/

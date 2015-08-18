@@ -7,7 +7,7 @@ exports.PROGRAM_TYPE =[null, "News", "Current Affairs", "Information", "Sport", 
 var ext;
 if (process.env.HW == "fake") {
     ext = {
-        playIndex: 0,
+        playIndex: -1,
         getVolume: function() {return 0},
         setVolume: function() {return true;},
         getPlayStatus: function() {return 0},
@@ -20,6 +20,9 @@ if (process.env.HW == "fake") {
         },
         getProgramText: function() {return "Programmet mitt"},
         getPlayIndex: function() {return this.playIndex;},
+        getDataRate: function() {return (this.playIndex == -1 ? -1 : 128)},
+        getDABSignalQuality: function() {return (this.playIndex == -1 ? -1 : 50)},
+        getSignalStrength: function() {return (this.playIndex == -1 ? -1 : 50)},
         playStream: function(playMode, idx) {this.playIndex = parseInt(idx); return true;},
         prevStream: function() {if (this.playIndex > 0) {this.playIndex -= 1; return true; } else return false},
         nextStream: function() {
@@ -83,7 +86,13 @@ var shadow = {
         playStatus: getEnumValue(ext.getPlayStatus(), exports.PLAY_STATUS),
         currentlyPlaying: null,
         dataRate: ext.getDataRate(),
-        signalQuality: ext.getDABSignalQuality()
+        signalQuality: ext.getDABSignalQuality(),
+        signalStrength: ext.getSignalStrength(),
+        _updateStats: function() {
+            this.dataRate = ext.getDataRate();
+            this.signalQuality = ext.getDABSignalQuality();
+            this.signalStrength = ext.getSignalStrength();
+        }
     },
     channels: loadProgramsList(),
     playIndex: ext.getPlayIndex()
@@ -104,10 +113,14 @@ exports.player = {
         }
     },
     get dataRate () {
-        return player.dataRate;
+        return shadow.player.dataRate;
     },
+    /** Deprecated **/
     get signalQuality () {
-        return player.signalQuality;
+        return shadow.player.signalQuality;
+    },
+    get signalStrength () {
+        return shadow.player.signalStrength;
     },
     mute: function() {
         ext.toggleMute();
@@ -140,6 +153,7 @@ exports.player = {
         if (ext.playStream(PLAY_MODE.indexOf(PLAY_MODE.DAB), idx)) {
             shadow.channels[idx].playing = true;
             shadow.playIndex = idx;
+            shadow.player._updateStats();
             return true;
         } else {
             return false;
@@ -152,6 +166,7 @@ exports.player = {
             }
             shadow.playIndex = ext.getPlayIndex();
             shadow.channels[shadow.playIndex].playing = true;
+            shadow.player._updateStats();
             return true;
         } else {
             console.warn("nextStream failed. playIndex:", shadow.playIndex);
@@ -166,6 +181,7 @@ exports.player = {
             }
             shadow.playIndex = ext.getPlayIndex();
             shadow.channels[shadow.playIndex].playing = true;
+            shadow.player._updateStats();
             return true;
         } else {
             console.warn("prevStream failed. playIndex:", shadow.playIndex);

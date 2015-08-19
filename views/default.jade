@@ -20,7 +20,7 @@ html
     ul(style="columns: 3")
       each channel, c in channels
         li
-          a(href="./#{channel.dabIndex}") #{channel.channel} (#{channel.programType}) (#{channel.applicationType})
+          a(href="./#{channel.dabIndex}") #{channel.channel} (#{channel.programType}) (#{channel.applicationType}) (#{channel.wcslen})
           if channel.playing
             span ♫ #{player.dataRate} kbps #{player.signalStrength}%
 

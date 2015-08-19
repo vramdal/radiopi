@@ -2,6 +2,7 @@
 #include <cstring>
 #include <climits>
 #include <cstdlib>
+#include <locale>
 #include "monkeyboard.h"
 
 
@@ -49,15 +50,28 @@ void DoScan(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
+/**
+* Returns a string with the program text, if available and changed since last call. If the program text
+* has not changed since last time this method was called, a boolean true is returned. If program text cannot
+* be retrieved, a boolean false is returned.
+*/
 void GetProgramText(const FunctionCallbackInfo<Value>& args) {
     Isolate* isolate = Isolate::GetCurrent();
     HandleScope scope(isolate);
     wchar_t buff[300];
     char cbuff[600];
-    GetProgramText(buff);
-    wcstombs( cbuff, buff, wcslen(buff) );
-    Local<String> str = String::NewFromUtf8(isolate, (const char *) cbuff, v8::String::kNormalString, wcslen(buff));
-    args.GetReturnValue().Set(str);
+    uint8 result = GetProgramText(buff);
+    Local<Value> returnValue;
+    if (result == 0) {
+        wprintf(L"GetProgramText: %lu\n", result);
+        wcstombs( cbuff, buff, wcslen(buff) );
+        returnValue = String::NewFromUtf8(isolate, (const char *) cbuff, v8::String::kNormalString, wcslen(buff));
+    } else if (result == 1) {
+       returnValue = v8::Boolean::New(isolate, true);
+    } else if (result == 255) {
+       returnValue = v8::Boolean::New(isolate, false);
+    }
+    args.GetReturnValue().Set(returnValue);
 }
 
 void GetPrograms(const FunctionCallbackInfo<Value>& args) {
@@ -73,23 +87,23 @@ void GetPrograms(const FunctionCallbackInfo<Value>& args) {
 
   for (i=0;i<totalprogram;i++) {
 
-  char programType = GetProgramType(0, i);
-  char applicationType = GetApplicationType(i);
+     char programType = GetProgramType(0, i);
+     char applicationType = GetApplicationType(i);
 
-  if (GetProgramName(0, i, 1, buff)) {
+     if (GetProgramName(0, i, 1, buff)) {
 	wprintf(L"%ls\n", buff);
-    wcstombs( cbuff, buff, wcslen(buff) );
-    Local<String> str = String::NewFromUtf8(isolate, (const char *) cbuff, v8::String::kNormalString, wcslen(buff));
-    Local<Number> programTypeNumber = Number::New(isolate, (int) programType);
-    Local<Number> dabIndexNumber = Number::New(isolate, i);
-    Local<Number> applicationTypeNumber = Number::New(isolate, applicationType);
-    Local<Object> obj = Object::New(isolate);
-    obj->Set(String::NewFromUtf8(isolate, "dabIndex"), dabIndexNumber);
-    obj->Set(String::NewFromUtf8(isolate, "channel"), str);
-    obj->Set(String::NewFromUtf8(isolate, "programType"), programTypeNumber);
-    obj->Set(String::NewFromUtf8(isolate, "applicationType"), applicationTypeNumber);
-    ARRAY->Set(i, obj);
-	}
+        wcstombs( cbuff, buff, wcslen(buff) );
+        Local<String> str = String::NewFromUtf8(isolate, (const char *) cbuff, v8::String::kNormalString, wcslen(buff));
+        Local<Number> programTypeNumber = Number::New(isolate, (int) programType);
+        Local<Number> dabIndexNumber = Number::New(isolate, i);
+        Local<Number> applicationTypeNumber = Number::New(isolate, applicationType);
+        Local<Object> obj = Object::New(isolate);
+        obj->Set(String::NewFromUtf8(isolate, "dabIndex"), dabIndexNumber);
+        obj->Set(String::NewFromUtf8(isolate, "channel"), str);
+        obj->Set(String::NewFromUtf8(isolate, "programType"), programTypeNumber);
+        obj->Set(String::NewFromUtf8(isolate, "applicationType"), applicationTypeNumber);
+        ARRAY->Set(i, obj);
+   	 }
   }
 
   args.GetReturnValue().Set(ARRAY);
@@ -218,6 +232,10 @@ void asyncTest(const FunctionCallbackInfo<Value>& args) {
 }
 
 void Initialize(Handle<Object> exports) {
+  char* localeSet = setlocale(LC_CTYPE, "C.UTF-8");
+  if (!localeSet) {
+    fprintf(stderr, "Failed to set locale C.UTF-8 for DAB module communication");
+  }
   if(OpenRadioPort((char*) "/dev/ttyACM0", true)!=true) {
     fprintf(stderr, "Error on opening radio port /dev/ttyACM0\n");
   }

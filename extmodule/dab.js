@@ -35,7 +35,9 @@ if (process.env.HW == "fake") {
 
     };
 } else {
+    console.log("Requiring MonkeyBoard");
     ext = require('./build/Release/monkeyboard');
+    console.log("MonkeyBoard ready");
 }
 
 var getProgramTypeText = function(programType) {
@@ -45,6 +47,7 @@ var getProgramTypeText = function(programType) {
 exports.monkeyboard = ext;
 
 function loadProgramsList() {
+    console.log("Loading programs list");
     var programs = ext.getPrograms();
     for (var i = 0; i < programs.length; i++) {
         var program = programs[i];
@@ -53,6 +56,7 @@ function loadProgramsList() {
             program.playing = true;
         }
     }
+    console.log("Programs list loaded");
     return programs;
 }
 
@@ -85,14 +89,15 @@ var shadow = {
         playMode: 0, //getEnumValue(ext.getPlayMode(), exports.PLAY_MODE),
         playStatus: getEnumValue(ext.getPlayStatus(), exports.PLAY_STATUS),
         currentlyPlaying: null,
-        dataRate: ext.getDataRate(),
-        signalQuality: ext.getDABSignalQuality(),
-        signalStrength: ext.getSignalStrength(),
+        dataRate: null, //ext.getDataRate(),
+        signalQuality: null, //ext.getDABSignalQuality(),
+        signalStrength: null, //ext.getSignalStrength(),
         _updateStats: function() {
-            this.dataRate = ext.getDataRate();
-            this.signalQuality = ext.getDABSignalQuality();
-            this.signalStrength = ext.getSignalStrength();
-        }
+            //this.dataRate = ext.getDataRate();
+            //this.signalQuality = ext.getDABSignalQuality();
+            //this.signalStrength = ext.getSignalStrength();
+        },
+        programText: false
     },
     channels: loadProgramsList(),
     playIndex: ext.getPlayIndex()
@@ -130,7 +135,15 @@ exports.player = {
         return PLAY_STATUS[ext.getPlayStatus()].toString();
     },
     get programText() {
-        return ext.getProgramText();
+        var updatedText = ext.getProgramText();
+        if (updatedText === true) {
+            return shadow.player.programText;
+        } else if (updatedText === false) {
+            return null;
+        } else {
+            shadow.player.programText = updatedText;
+            return updatedText;
+        }
     },
     get playIndex() {
         return shadow.playIndex;
@@ -188,6 +201,9 @@ exports.player = {
             return false;
 
         }
+    },
+    doScan: function(progressCb) {
+        return ext.doScan(progressCb);
     }
 };
 

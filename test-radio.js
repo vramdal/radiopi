@@ -18,7 +18,12 @@ app.use(bodyParser.json());
 
 
 app.get('/channels/*', routes.channels);
-app.all('/volume', routes.volume);
+//app.all('/volume', routes.volume);
+
+var playerRoute = require("./routes/player");
+
+app.get('/player', playerRoute.statusGet);
+app.post('/player', playerRoute.statusSet);
 
 http.createServer(app).listen(port, function(){
     console.log(arguments);

@@ -8,8 +8,8 @@
     "async": "^1.4.2",
     "body-parser": "^1.13.3",
     "express": "^4.13.3",
+    "express-negotiate": "0.0.5",
     "jade": "^1.11.0",
     "monkeyboard": "file:./extmodule"
   }
-
 }

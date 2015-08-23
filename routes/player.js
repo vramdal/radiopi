@@ -1,5 +1,4 @@
 var dab = require("../extmodule/dab.js");
-var negotiate = require('express-negotiate');
 var player = dab.player;
 
 exports.statusGet = function(req, res, next) {
@@ -14,10 +13,14 @@ exports.statusGet = function(req, res, next) {
 };
 
 exports.statusSet = function(req, res, next) {
+    var settableProps = {"volume": parseInt};
     var propsSet = {};
-    if (req.body.volume != undefined) {
-        dab.player.volume = parseInt(req.body.volume);
-        propsSet["volume"] = dab.player.volume;
-    }
+    req.body.iterateProperties(function(prop, idx) {
+        if (settableProps[prop] != undefined) {
+            var value = settableProps[prop](req.body[prop]);
+            propsSet[prop] = value;
+            dab.player[prop] = value;
+        }
+    });
     res.end(JSON.stringify(propsSet));
 };

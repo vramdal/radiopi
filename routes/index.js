@@ -1,4 +1,5 @@
 var dab = require("../extmodule/dab.js");
+require("../polyfills");
 
 
 exports.volume = function(req, res, next) {

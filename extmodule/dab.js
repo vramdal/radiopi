@@ -1,3 +1,7 @@
+var EventEmitter = require('events').EventEmitter;
+var util         = require("util");
+var jsenum = require("../polyfills").jsenum;
+
 exports.PROGRAM_TYPE =[null, "News", "Current Affairs", "Information", "Sport", "Education", "Drama", "Arts", "Science",
 "Talk", "Pop Music", "Rock Music", "Easy Listening", "Light Classical", "Classical Music", "Other Music",
         "Weather", "Finance", "Children's", "FACTUAL", "Religion", "Phone In", "Travel", "Leisure", "Jazz and Blues", "Country Music",
@@ -46,42 +50,35 @@ var getProgramTypeText = function(programType) {
 
 exports.monkeyboard = ext;
 
-function loadProgramsList() {
+var channelsEe = new EventEmitter();
+
+function loadProgramsList(arr) {
     console.log("Loading programs list");
     var programs = ext.getPrograms();
+    arr.length = programs.length;
     for (var i = 0; i < programs.length; i++) {
         var program = programs[i];
+        program.channel = program.channel.trim();
         program.programType = getProgramTypeText(program.programType);
         if (i == this.playIndex) {
             program.playing = true;
         }
+        arr[i] = program;
     }
     console.log("Programs list loaded");
-    return programs;
+    channelsEe.emit("programListLoaded");
+    //return programs;
 }
 
-var PLAY_MODE = [];
-PLAY_MODE.DAB = Symbol("DAB");
-PLAY_MODE.FM = Symbol("FM");
-PLAY_MODE.push(PLAY_MODE.DAB, PLAY_MODE.FM);
-exports.PLAY_MODE = PLAY_MODE;
+exports.PLAY_MODE = jsenum("DAB", "FM");
+exports.PLAY_STATUS = jsenum("PLAYING", "SEARCHING", "TUNING", "STOP", "SORTING", "RECONFIGURING");
 
-var PLAY_STATUS = [];
-PLAY_STATUS.PLAYING = Symbol("Playing");
-PLAY_STATUS.SEARCHING = Symbol("Searching");
-PLAY_STATUS.TUNING = Symbol("Tuning");
-PLAY_STATUS.STOP = Symbol("Stop");
-PLAY_STATUS.SORTING = Symbol("Sorting");
-PLAY_STATUS.RECONFIGURING = Symbol("Reconfiguring");
-PLAY_STATUS.push(
-        PLAY_STATUS.PLAYING,
-        PLAY_STATUS.SEARCHING,
-        PLAY_STATUS.TUNING,
-        PLAY_STATUS.STOP,
-        PLAY_STATUS.SORTING,
-        PLAY_STATUS.RECONFIGURING
-);
-exports.PLAY_STATUS = PLAY_STATUS;
+function ChannelsList() {
+    EventEmitter.call(this);
+    this.prototype = Array.prototype;
+}
+util.inherits(ChannelsList, EventEmitter);
+
 
 var shadow = {
     player: {
@@ -99,17 +96,20 @@ var shadow = {
         },
         programText: false
     },
-    channels: loadProgramsList(),
+    channelsList: new ChannelsList(),
     playIndex: ext.getPlayIndex()
 };
 
-exports.channels = shadow.channels;
+loadProgramsList(shadow.channelsList);
+exports.channels = shadow.channelsList;
+
 
 exports.player = {
     get volume () {
         return shadow.player.volume;
     },
     set volume (vol) {
+        vol = parseInt(vol);
         if (ext.setVolume(vol)) {
             shadow.player.volume = vol;
             return true;
@@ -132,7 +132,7 @@ exports.player = {
         shadow.player.volume = ext.getVolume();
     },
     get playStatus () {
-        return PLAY_STATUS[ext.getPlayStatus()].toString();
+        return exports.PLAY_STATUS.toString(exports.PLAY_STATUS[ext.getPlayStatus()]);
     },
     get programText() {
         var updatedText = ext.getProgramText();
@@ -152,19 +152,19 @@ exports.player = {
         return shadow.player.playMode;
     },
     get currentlyPlaying() {
-        for (var i = 0; i < shadow.channels.length; i++) {
-            if (shadow.channels[i].playing) {
-                return shadow.channels[i];
+        for (var i = 0; i < shadow.channelsList.length; i++) {
+            if (shadow.channelsList[i].playing) {
+                return shadow.channelsList[i];
             }
         }
         return null;
     },
     playDAB: function(idx) {
-        for (var i = 0; i < shadow.channels.length; i++) {
-            delete shadow.channels[i].playing;
+        for (var i = 0; i < shadow.channelsList.length; i++) {
+            delete shadow.channelsList[i].playing;
         }
-        if (ext.playStream(PLAY_MODE.indexOf(PLAY_MODE.DAB), idx)) {
-            shadow.channels[idx].playing = true;
+        if (ext.playStream(exports.PLAY_MODE.indexOf(exports.PLAY_MODE.DAB), idx)) {
+            shadow.channelsList[idx].playing = true;
             shadow.playIndex = idx;
             shadow.player._updateStats();
             return true;
@@ -174,11 +174,11 @@ exports.player = {
     },
     nextStream: function() {
         if (ext.nextStream()) {
-            for (var i = 0; i < shadow.channels.length; i++) {
-                delete shadow.channels[i].playing;
+            for (var i = 0; i < shadow.channelsList.length; i++) {
+                delete shadow.channelsList[i].playing;
             }
             shadow.playIndex = ext.getPlayIndex();
-            shadow.channels[shadow.playIndex].playing = true;
+            shadow.channelsList[shadow.playIndex].playing = true;
             shadow.player._updateStats();
             return true;
         } else {
@@ -189,11 +189,11 @@ exports.player = {
     },
     prevStream: function() {
         if (ext.prevStream()) {
-            for (var i = 0; i < shadow.channels.length; i++) {
-                delete shadow.channels[i].playing;
+            for (var i = 0; i < shadow.channelsList.length; i++) {
+                delete shadow.channelsList[i].playing;
             }
             shadow.playIndex = ext.getPlayIndex();
-            shadow.channels[shadow.playIndex].playing = true;
+            shadow.channelsList[shadow.playIndex].playing = true;
             shadow.player._updateStats();
             return true;
         } else {
@@ -206,6 +206,10 @@ exports.player = {
         return ext.doScan(progressCb);
     }
 };
+
+EventEmitter.call(exports.player);
+util.inherits(exports.player, EventEmitter);
+
 
 function getEnumValue(idx, aEnum) {
     return aEnum[idx];

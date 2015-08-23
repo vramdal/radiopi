@@ -3,4 +3,5 @@ html
     head
         title= title
     body
-        h1 Now playing #{program.channel}
+        form(method="post" action=".")
+            input(type="range" min="0" max="16" value="#{player.volume}")

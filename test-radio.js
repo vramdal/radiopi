@@ -28,6 +28,8 @@ var playerRoute = require("./routes/player");
 app.get('/player', playerRoute.statusGet);
 app.post('/player', playerRoute.statusSet);
 
+app.use('/static', express.static('public'));
+
 http.createServer(app).listen(port, function(){
     console.log(arguments);
     console.log("Express server listening on port %d in %s mode", port, app.settings.env);

@@ -10,6 +10,7 @@ exports.PROGRAM_TYPE =[null, "News", "Current Affairs", "Information", "Sport", 
 
 var ext;
 if (process.env.HW == "fake") {
+    //noinspection JSUnusedGlobalSymbols
     ext = {
         playIndex: -1,
         getVolume: function() {return 0},
@@ -104,9 +105,13 @@ loadProgramsList(shadow.channelsList);
 exports.channels = shadow.channelsList;
 
 
+//noinspection JSUnusedGlobalSymbols
 exports.player = {
     get volume () {
         return shadow.player.volume;
+    },
+    get numChannels () {
+        return shadow.channelsList.length;
     },
     set volume (vol) {
         vol = parseInt(vol);
@@ -218,5 +223,7 @@ function getEnumValue(idx, aEnum) {
 // extend prototype
 function inherits(target, source) {
   for (var k in source.prototype)
-    target.prototype[k] = source.prototype[k];
+    { //noinspection JSUnfilteredForInLoop
+        target.prototype[k] = source.prototype[k];
+    }
 }

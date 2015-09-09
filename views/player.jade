@@ -2,6 +2,11 @@ doctype html
 html
     head
         title= title
+        script(src="/static/player.js")
+        link(rel="stylesheet" href="/static/style.css")
     body
-        form(method="post" action=".")
-            input(type="range" min="0" max="16" value="#{player.volume}")
+        form(method="post" action="." enctype="multipart/formdata")
+            label="Volume"
+                input(type="range" min="0" max="16" name="volume" value="#{player.volume}")
+            label="Tuning"
+                input(type="range" min="0" max="#{player.numChannels}" name="playIndex" value="#{player.playIndex}")

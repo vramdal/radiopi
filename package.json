@@ -12,6 +12,7 @@
     "express-negotiate": "0.0.5",
     "jade": "^1.11.0",
     "monkeyboard": "file:./extmodule",
-    "multiparty": "^4.1.2"
+    "multiparty": "^4.1.2",
+    "ws": "^0.8.0"
   }
 }

@@ -28,7 +28,7 @@ if (!Object.prototype.hasOwnProperty("iterateProperties")) {
 }
 
 exports.jsenum = function() {
-    var values = Array.prototype.slice.call(arguments, 1);
+    var values = Array.prototype.slice.call(arguments, 0);
     var names = [];
     var arr = [];
     arr.toString = function() {
@@ -63,3 +63,14 @@ exports.jsenum = function() {
     }
     return arr;
 };
+
+exports.autoUpdateProperty = function(host, propName, fetcherFunc, interval, onChange) {
+    setInterval(function() {
+        var latestValue = fetcherFunc();
+        var oldValue = host[propName];
+        if (latestValue != oldValue) {
+            host[propName] = latestValue;
+            onChange(latestValue, oldValue);
+        }
+    }, interval);
+}

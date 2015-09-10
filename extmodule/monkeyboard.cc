@@ -216,6 +216,12 @@ void GetDataRate(const FunctionCallbackInfo<Value>& args) {
    args.GetReturnValue().Set((int) GetDataRate());
 }
 
+void IsSysReady(const FunctionCallbackInfo<Value>& args) {
+   Isolate* isolate = Isolate::GetCurrent();
+   HandleScope scope(isolate);
+   args.GetReturnValue().Set((bool) IsSysReady());
+}
+
 void asyncTest(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
@@ -259,6 +265,7 @@ void Initialize(Handle<Object> exports) {
   NODE_SET_METHOD(exports, "getDABSignalQuality", GetDABSignalQuality);
   NODE_SET_METHOD(exports, "getDataRate", GetDataRate);
   NODE_SET_METHOD(exports, "getSignalStrength", GetSignalStrength);
+  NODE_SET_METHOD(exports, "isSysReady", IsSysReady);
 }
 
 

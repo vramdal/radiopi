@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var util         = require("util");
 var jsenum = require("../polyfills").jsenum;
+var autoUpdateProperty = require("../polyfills").autoUpdateProperty;
 
 exports.PROGRAM_TYPE =[null, "News", "Current Affairs", "Information", "Sport", "Education", "Drama", "Arts", "Science",
 "Talk", "Pop Music", "Rock Music", "Easy Listening", "Light Classical", "Classical Music", "Other Music",
@@ -23,7 +24,11 @@ if (process.env.HW == "fake") {
                 {programType: 0, dabIndex: 2, channel: "NRK P3", applicationType: 0}
             ];
         },
-        getProgramText: function() {return "Programmet mitt"},
+        getProgramText: function() {
+            if (this.playIndex >= 0 && this.playIndex < this.getPrograms().length) {
+                return ["Program 1", "Program 2", "Program 3"][this.playIndex];
+            }
+        },
         getPlayIndex: function() {return this.playIndex;},
         getDataRate: function() {return (this.playIndex == -1 ? -1 : 128)},
         getDABSignalQuality: function() {return (this.playIndex == -1 ? -1 : 50)},
@@ -52,6 +57,7 @@ var getProgramTypeText = function(programType) {
 exports.monkeyboard = ext;
 
 var channelsEe = new EventEmitter();
+exports.playerEvents = new EventEmitter();
 
 function loadProgramsList(arr) {
     console.log("Loading programs list");
@@ -101,6 +107,28 @@ var shadow = {
     playIndex: ext.getPlayIndex()
 };
 
+autoUpdateProperty(shadow, "programText", function() {
+    var updatedText = ext.getProgramText();
+    if (updatedText === true) {
+        return shadow.player.programText;
+    } else if (updatedText === false) {
+        return null;
+    } else {
+        shadow.player.programText = updatedText;
+        return updatedText;
+    }
+}, 1000, function(newValue, oldValue) {
+    exports.playerEvents.emit("stateChange", {programText: newValue});
+});
+
+autoUpdateProperty(shadow, "playStatus", function() {
+    return ext.getPlayStatus();
+}, 1000, function(newValue, oldValue) {
+    exports.playerEvents.emit("stateChange", {playStatus: newValue});
+});
+
+
+
 loadProgramsList(shadow.channelsList);
 exports.channels = shadow.channelsList;
 
@@ -110,6 +138,13 @@ exports.player = {
     get volume () {
         return shadow.player.volume;
     },
+    get channelsMap() {
+        var result = {};
+        for (var i = 0; i < shadow.channelsList.length; i++) {
+            result[i] = shadow.channelsList[i];
+        }
+        return result;
+    },
     get numChannels () {
         return shadow.channelsList.length;
     },
@@ -117,6 +152,7 @@ exports.player = {
         vol = parseInt(vol);
         if (ext.setVolume(vol)) {
             shadow.player.volume = vol;
+            exports.playerEvents.emit("stateChange", {volume: shadow.player.volume});
             return true;
         } else {
             return false;
@@ -135,26 +171,26 @@ exports.player = {
     mute: function() {
         ext.toggleMute();
         shadow.player.volume = ext.getVolume();
+        exports.playerEvents.emit("stateChange", {volume: shadow.player.volume});
     },
     get playStatus () {
         return exports.PLAY_STATUS.toString(exports.PLAY_STATUS[ext.getPlayStatus()]);
     },
     get programText() {
-        var updatedText = ext.getProgramText();
-        if (updatedText === true) {
-            return shadow.player.programText;
-        } else if (updatedText === false) {
-            return null;
-        } else {
-            shadow.player.programText = updatedText;
-            return updatedText;
-        }
+        return shadow.player.programText;
     },
     get playIndex() {
         return shadow.playIndex;
     },
+    set playIndex(idx) {
+        return this.playDAB(idx);
+    },
     get playMode() {
         return shadow.player.playMode;
+    },
+    get channelName() {
+        var channel = this.currentlyPlaying;
+        return channel != null ? channel.channel : null;
     },
     get currentlyPlaying() {
         for (var i = 0; i < shadow.channelsList.length; i++) {
@@ -171,9 +207,11 @@ exports.player = {
         if (ext.playStream(exports.PLAY_MODE.indexOf(exports.PLAY_MODE.DAB), idx)) {
             shadow.channelsList[idx].playing = true;
             shadow.playIndex = idx;
+            this._emitChannelEvent();
             shadow.player._updateStats();
             return true;
         } else {
+            this._emitChannelEvent({failed: true});
             return false;
         }
     },
@@ -184,6 +222,7 @@ exports.player = {
             }
             shadow.playIndex = ext.getPlayIndex();
             shadow.channelsList[shadow.playIndex].playing = true;
+            this._emitChannelEvent();
             shadow.player._updateStats();
             return true;
         } else {
@@ -192,6 +231,20 @@ exports.player = {
 
         }
     },
+    _emitChannelEvent: function (extra) {
+        var props = {
+            channel:     shadow.channelsList[shadow.playIndex],
+            playIndex:   shadow.playIndex,
+            channelName: this.channelName,
+            playStatus:  this.playStatus
+        };
+        if (extra != undefined) {
+            extra.iterateProperties(function(key) {
+                props[key] = extra[key];
+            });
+        }
+        exports.playerEvents.emit("stateChange", props);
+    },
     prevStream: function() {
         if (ext.prevStream()) {
             for (var i = 0; i < shadow.channelsList.length; i++) {
@@ -199,6 +252,7 @@ exports.player = {
             }
             shadow.playIndex = ext.getPlayIndex();
             shadow.channelsList[shadow.playIndex].playing = true;
+            this._emitChannelEvent();
             shadow.player._updateStats();
             return true;
         } else {
@@ -214,7 +268,6 @@ exports.player = {
 
 EventEmitter.call(exports.player);
 util.inherits(exports.player, EventEmitter);
-
 
 function getEnumValue(idx, aEnum) {
     return aEnum[idx];

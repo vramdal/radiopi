@@ -5,3 +5,30 @@ label {
 label input {
     display: block;
 }
+
+input[type='range'] {
+    width: 100%;
+}
+
+table.tunerdisplay {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.tunerdisplay td {
+    -webkit-transform: rotate(90deg);
+    height: 10em;
+    text-align: right;
+    padding: 0;
+    padding-right: 1em;
+    border: 1px solid green;
+}
+
+table.tunerdisplay td:first-of-type {
+    vertical-align: bottom;
+}
+
+table.tunerdisplay td:last-of-type {
+    vertical-align: top;
+}
+

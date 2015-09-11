@@ -1,0 +1,162 @@
+<dom-module id="webaudio-knob" attributes="value min max step sprites diameter src" on-mousedown="mousedown">
+  <template>
+    <div class="knob" id="knob">
+      <span id="value-tip">{{value}}</span>
+    </div>
+    <style>
+      @host {
+        * {
+          display: inline-block;
+        }
+      }
+      #knob {
+        cursor: pointer;
+        width: 64px;
+        height: 64px;
+        background-position-y: -64px;
+        background-image: url(gfx/LittlePhatty.png);
+        position: relative;
+      }
+      #value-tip {
+        opacity: 0;
+        border: solid 1px #666;
+        background-color: #eee;
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 1px 4px;
+        font-size: 10px;
+        font-family: Helvetica;
+        transition: opacity 0.3s;
+      }
+    </style>
+  </template>
+  <script>
+    Polymer({
+      is: "webaudio-knob",
+
+      properties: {
+        value: {type: Number, value: 0, observer: 'valueChanged'},
+        min:        {type: Number, value: 0},
+        max:        {type: Number, value: 16},
+        diameter:   {type: Number, value: 64},
+        step:       {type: Number, value: 100},
+        sprites:    {type: Number, value: 100},
+        src:        {type: String, value: 'img/org_amp.png'},
+        startPos:   {type: Number, value: null},
+        startVal:   {type: Number, value: 0}
+      },
+
+      listeners: {
+        'valueChanged': this.valueChanged,
+//        'mousemove': 'mouseMove',
+        'click': 'mouseClick'
+      },
+
+      valueChanged: function(newVal, oldVal) {
+        console.log("Value changed", oldVal, newVal);
+        this.updateDisplay.bind(this)(newVal);
+      },
+
+      mouseClick: function(evt) {
+        console.log("Clicked: ", evt);
+        var center = {x: this.diameter / 2, y: this.diameter / 2};
+        var point = {x: evt.clientX, y: evt.clientY};
+        var radius = this.diameter / 2;
+        var vX = point.x - center.x;
+        var vY = point.y - center.y;
+        var magV = Math.sqrt(vX^2 + vY^2);
+        var pointOnCircle = {x: center.x + vX / magV * radius, y: center.y + vY / magV * radius};
+        var delta = {x: point.x - center.x, y: point.y - center.y};
+        var angleInDegrees = Math.atan(delta.y / delta.x) * 360 / Math.PI + 180;
+        console.log("Angle: " + angleInDegrees);
+        var range = this.max - this.min;
+        var newValue = angleInDegrees / (360/range);
+        this.updateDisplay(newValue);
+      },
+
+      updateDisplay: function(value) {
+        //this.value = value < this.min ? this.min : value > this.max ? this.max : value;
+        console.log("Updating display to ", value);
+        var range = this.max - this.min;
+        var spritesPrStep = (this.sprites / range);
+        var spriteToDisplay = ~~(value * spritesPrStep);
+        var offset = spriteToDisplay * this.diameter;
+        //var pos = '-' + ~~(this.sprites / range * (range - this.min + this.value) + 1) * this.diameter + 'px';
+        var pos = '-' + ~~(offset) + 'px';
+        if ('backgroundPositionY' in this.$['knob'].style) {
+          this.$['knob'].style.backgroundPositionY = pos;
+        } else {
+          this.$['knob'].style.backgroundPosition = "center " + pos;
+        }
+//        this.fire('change');
+      },
+
+      mouseMove: function(evt) {
+        var offset = (this.startPos - evt.pageY) || 0;
+        var value = this.startVal + (evt.shiftKey ? ~~(offset / 3) : this.step * offset);
+        console.log("MouseMove", offset, value);
+        this.updateDisplay.bind(this)(value);
+      }
+    });
+
+    /*Polymer('webaudio-knob', (function() {
+      var mousemove = function(e) {
+        var offset = (this.startPos - e.pageY) || 0;
+        var value = this.startVal + (e.shiftKey ? ~~(offset / 3) : this.step * offset);
+        update.bind(this)(value);
+      };
+
+      var cancel = function(e) {
+        this.startPos = null;
+        this.$['value-tip'].style.opacity = 0;
+        window.removeEventListener('mousemove', this.boundMousemove, true);
+        window.removeEventListener('mouseup', this.boundCancel, true);
+        this.fire('cancel');
+      };
+
+      var update = function(value) {
+        this.value = value < this.min ? this.min : value > this.max ? this.max : value;
+        var range = this.max - this.min;
+        var value = '-' + ~~(this.sprites / range * (range - this.min + this.value) + 1) * this.diameter + 'px';
+        if('backgroundPositionY' in this.$['knob'].style){
+          this.$['knob'].style.backgroundPositionY = value;
+        } else {
+          this.$['knob'].style.backgroundPosition="center " + value;
+        }
+        this.fire('change');
+      };
+
+      return {
+        ready: function() {
+          this.$['knob'].style.width = this.diameter+'px';
+          this.$['knob'].style.height = this.diameter+'px';
+          this.$['knob'].style.background = 'url('+this.src+')';
+          update.bind(this)(this.value);
+        },
+        valueChanged: function(oldVal, newVal) {
+          update.bind(this)(newVal);
+        },       
+        value:      0,
+        min:        0,
+        max:        127,
+        diameter:   64,
+        step:       3,
+        sprites:    30,
+        src:        'img/org_amp.png',
+        startPos:   null,
+        startVal:   0,
+        mousedown:  function(e) {
+          this.$['value-tip'].style.opacity = 1;
+          this.startPos = e.pageY;
+          this.startVal = this.value;
+          this.boundMousemove = mousemove.bind(this);
+          this.boundCancel = cancel.bind(this);
+          window.addEventListener('mousemove', this.boundMousemove, true);
+          window.addEventListener('mouseup', this.boundCancel, true);
+          e.preventDefault();
+        }
+      };
+    })());*/
+  </script>
+</dom-module>

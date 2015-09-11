@@ -82,22 +82,33 @@ var AjaxForm = React.createClass({
     },
     render: function() {
         var radiobuttons = [];
+        var channelOptionsList = [];
+        var channelColumns = [];
+
         for (var key in this.state.channelsMap) {
             if (!this.state.channelsMap.hasOwnProperty(key)) {
                 continue;
             }
             var channel = this.state.channelsMap[key];
-            radiobuttons.push(<span><input type="radio" name="playIndex" value={key}/> {channel.channel}</span>);
+            radiobuttons.push(<span key={key}><input type="radio" name="playIndex" value={key}/> {channel.channel}</span>);
+            channelOptionsList.push(<option key={key} label="{channel.channel}">{key}</option>);
+            channelColumns.push(<td key={key}>{channel.channel}</td>);
         }
         return (
                 <form method="post" action="/player"> Connected: {this.state.connected ? "yes" : "no"}<br/>
+                    <webaudio-knob value={this.state.volume}/>
                     <h1>{this.state.programText}</h1>
                     <h2>{this.state.channelName}</h2>
                     <h3>{this.state.playStatus}</h3>
                     <Slider label="Volume" name="volume" value={this.state.volume} max={this.state.maxVolume} onUpdate={this.onUpdate}/> ({this.state.volume}/{this.state.maxVolume})
                     <hr/>
                     {radiobuttons}
-                    <Slider label="Channel" name="playIndex" value={this.state.playIndex} max={this.state.numChannels - 1} onUpdate={this.onUpdate}/> ({parseInt(this.state.playIndex) + 1}/{this.state.numChannels})
+                    <table className="tunerdisplay">
+                        <tr>
+                            {channelColumns}
+                        </tr>
+                    </table>
+                    <Slider label="Channel" name="playIndex" list={channelOptionsList} value={this.state.playIndex} max={this.state.numChannels - 1} onUpdate={this.onUpdate}/>
                 </form>
         );
     }
@@ -113,8 +124,11 @@ var Slider = React.createClass({
     },
     render: function() {
         return <div>
-            <label>{this.props.label}
-                <input type="range" min="0" max={this.props.max} name={this.props.name} value={this.props.value} onChange={this.onChangeHandler}/>
+            <label>{this.props.label}<br/>
+                <input type="range" min="0" max={this.props.max} name={this.props.name} value={this.props.value} onChange={this.onChangeHandler} list={this.props.name + "_list"}/>
+                <datalist id={this.props.name + "_list"}>
+                    {this.props.list}
+                </datalist>
             </label>
         </div>;
     }

@@ -26,25 +26,11 @@ var AjaxForm = React.createClass({
         this.ws.onclose = function(evt) {
             _this.state.connected = false;
         };
+        var volumeKnob = this.getDOMNode().querySelector("#volume-knob");
+        volumeKnob.addEventListener("change", function() {
+            _this.onUpdate("volume", volumeKnob.value);
+        });
         console.log("componentDidMount");
-/*
-        try {
-            var xhr = new XMLHttpRequest();
-            xhr.addEventListener("load", function (evt) {
-                console.log("Load");
-                if (_this.isMounted()) {
-                    console.log("Populating");
-                    var json = JSON.parse(evt.srcElement.responseText);
-                    _this.setState(json);
-                    console.log("State: ", _this.state);
-                }
-            });
-            xhr.open("get", "/player", true);
-            xhr.send();
-        } catch (e) {
-            console.error(e);
-        }
-*/
     },
     onUpdate: function(name, value) {
         var changes = {};
@@ -80,7 +66,13 @@ var AjaxForm = React.createClass({
             this.save();
         }
     },
+    test: function(evt) {
+        console.log("test: ", arguments);
+        this.setState({"volume": evt.target.value});
+    },
+
     render: function() {
+        console.log("FORM render");
         var radiobuttons = [];
         var channelOptionsList = [];
         var channelColumns = [];
@@ -92,11 +84,11 @@ var AjaxForm = React.createClass({
             var channel = this.state.channelsMap[key];
             radiobuttons.push(<span key={key}><input type="radio" name="playIndex" value={key}/> {channel.channel}</span>);
             channelOptionsList.push(<option key={key} label="{channel.channel}">{key}</option>);
-            channelColumns.push(<td key={key}>{channel.channel}</td>);
+            channelColumns.push(<td key={key}><span>{channel.channel}</span></td>);
         }
         return (
                 <form method="post" action="/player"> Connected: {this.state.connected ? "yes" : "no"}<br/>
-                    <webaudio-knob value={this.state.volume}/>
+                    <webaudio-knob id="volume-knob" value={this.state.volume} />
                     <h1>{this.state.programText}</h1>
                     <h2>{this.state.channelName}</h2>
                     <h3>{this.state.playStatus}</h3>

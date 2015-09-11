@@ -13,22 +13,28 @@ input[type='range'] {
 table.tunerdisplay {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 table.tunerdisplay td {
-    -webkit-transform: rotate(90deg);
-    height: 10em;
-    text-align: right;
+    text-align: center;
     padding: 0;
-    padding-right: 1em;
     border: 1px solid green;
 }
 
+table.tunerdisplay td span {
+    -webkit-transform: rotate(90deg);
+    border: 1px solid red;
+    height: 100%;
+    display: inline-block;
+}
+
 table.tunerdisplay td:first-of-type {
-    vertical-align: bottom;
+    text-align: left;
+
 }
 
 table.tunerdisplay td:last-of-type {
-    vertical-align: top;
+    text-align: right;
 }
 

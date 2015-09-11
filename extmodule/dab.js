@@ -21,7 +21,8 @@ if (process.env.HW == "fake") {
             return [
                 {programType: 0, dabIndex: 0, channel: "NRK P1", applicationType: 0},
                 {programType: 0, dabIndex: 1, channel: "NRK P2", applicationType: 0},
-                {programType: 0, dabIndex: 2, channel: "NRK P3", applicationType: 0}
+                {programType: 0, dabIndex: 2, channel: "NRK P3", applicationType: 0},
+                {programType: 0, dabIndex: 3, channel: "NRK Nyheter", applicationType: 0}
             ];
         },
         getProgramText: function() {

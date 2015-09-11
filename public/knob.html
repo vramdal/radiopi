@@ -1,4 +1,4 @@
-<dom-module id="webaudio-knob" attributes="value min max step sprites diameter src" on-mousedown="mousedown">
+<dom-module id="webaudio-knob" attributes="value min max step sprites diameter src">
   <template>
     <div class="knob" id="knob">
       <span id="value-tip">{{value}}</span>
@@ -32,11 +32,12 @@
     </style>
   </template>
   <script>
+
     Polymer({
       is: "webaudio-knob",
 
       properties: {
-        value: {type: Number, value: 0, observer: 'valueChanged'},
+        value:      {type: Number, value: 0, observer: 'valueChanged'},
         min:        {type: Number, value: 0},
         max:        {type: Number, value: 16},
         diameter:   {type: Number, value: 64},
@@ -54,12 +55,25 @@
       },
 
       valueChanged: function(newVal, oldVal) {
+        var _this = this;
+        window.triggerTest = function() {
+          _this.setValueAndFire(8);
+
+        };
+
         console.log("Value changed", oldVal, newVal);
         this.updateDisplay.bind(this)(newVal);
       },
 
+      setValueAndFire: function(value) {
+        console.log("Setting value and firing event");
+        this.value = ~~value;
+        //this.fire("change", {value: value});
+        this.fire("change", {"detail": {value: this.value}});
+      },
+
       mouseClick: function(evt) {
-        console.log("Clicked: ", evt);
+        console.log("Clicked: ", evt.clientX, evt.clientY);
         var center = {x: this.diameter / 2, y: this.diameter / 2};
         var point = {x: evt.clientX, y: evt.clientY};
         var radius = this.diameter / 2;
@@ -69,10 +83,19 @@
         var pointOnCircle = {x: center.x + vX / magV * radius, y: center.y + vY / magV * radius};
         var delta = {x: point.x - center.x, y: point.y - center.y};
         var angleInDegrees = Math.atan(delta.y / delta.x) * 360 / Math.PI + 180;
+        if (angleInDegrees < 30) {
+          angleInDegrees = 0;
+        } else if (angleInDegrees > 340) {
+          angleInDegrees = 360;
+        }
         console.log("Angle: " + angleInDegrees);
         var range = this.max - this.min;
         var newValue = angleInDegrees / (360/range);
-        this.updateDisplay(newValue);
+        if (newValue > this.value + (range / 4)) {
+          newValue = this.value + (range / 4);
+        }
+        //this.updateDisplay(newValue);
+        this.setValueAndFire(~~newValue);
       },
 
       updateDisplay: function(value) {

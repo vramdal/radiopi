@@ -31,6 +31,24 @@ var AjaxForm = React.createClass({
             _this.onUpdate("volume", volumeKnob.value);
         });
         console.log("componentDidMount");
+/*
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.addEventListener("load", function (evt) {
+                console.log("Load");
+                if (_this.isMounted()) {
+                    console.log("Populating");
+                    var json = JSON.parse(evt.srcElement.responseText);
+                    _this.setState(json);
+                    console.log("State: ", _this.state);
+                }
+            });
+            xhr.open("get", "/player", true);
+            xhr.send();
+        } catch (e) {
+            console.error(e);
+        }
+*/
     },
     onUpdate: function(name, value) {
         var changes = {};
@@ -38,6 +56,11 @@ var AjaxForm = React.createClass({
         //this.setState(changes);
         this.dirtyProps[name] = value;
         this.save();
+    },
+    onRadioButtonChanged: function(evt) {
+        console.log("Radio button changed", evt, evt.target);
+        var value = evt.target.value;
+        this.onUpdate(evt.target.name, value);
     },
     save: function() {
         if (this.isSaving) {

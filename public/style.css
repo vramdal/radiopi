@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Codystar);
+
 label {
     display: block;
 }
@@ -37,4 +39,9 @@ table.tunerdisplay td:first-of-type {
 table.tunerdisplay td:last-of-type {
     text-align: right;
 }
+
+.lcd {
+    font-family: 'Codystar', cursive;
+}
+
 

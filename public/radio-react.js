@@ -106,15 +106,27 @@ var AjaxForm = React.createClass({
             }
             var channel = this.state.channelsMap[key];
             radiobuttons.push(<span key={key}><input type="radio" name="playIndex" value={key}/> {channel.channel}</span>);
-            channelOptionsList.push(<option key={key} label="{channel.channel}">{key}</option>);
+            channelOptionsList.push(<option key={key} label={channel.channel}>{key}</option>);
             channelColumns.push(<td key={key}><span>{channel.channel}</span></td>);
+        }
+        var volumeOptionsList = [];
+        for (var vol = 0; vol <= 16; vol++) {
+            volumeOptionsList.push(<option key={"vol_" + vol} label={vol}>{vol}</option>);
         }
         return (
                 <form method="post" action="/player"> Connected: {this.state.connected ? "yes" : "no"}<br/>
                     <webaudio-knob id="volume-knob" value={this.state.volume} />
-                    <h1>{this.state.programText}</h1>
-                    <h2>{this.state.channelName}</h2>
-                    <h3>{this.state.playStatus}</h3>
+                    <div className="lcd">
+                        <span className="channel-name">{this.state.channelName}</span>
+                        <span className="play-status">{this.state.playStatus}</span>
+                        <span className="program-text">{this.state.programText}</span>
+                    </div>
+                    <select name="playIndex" value={this.state.playIndex} onChange={this.onRadioButtonChanged}>
+                        {channelOptionsList}
+                    </select>
+                    <select name="volume" value={this.state.volume} onChange={this.onRadioButtonChanged}>
+                        {volumeOptionsList}
+                    </select>
                     <Slider label="Volume" name="volume" value={this.state.volume} max={this.state.maxVolume} onUpdate={this.onUpdate}/> ({this.state.volume}/{this.state.maxVolume})
                     <hr/>
                     {radiobuttons}
